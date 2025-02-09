@@ -35,7 +35,7 @@ jobs:
         run: |
           # build
           dotnet nuget add source --username ${{ github.repository_owner }} --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
-          dotnet restore
+          dotnet restore *.sln
           dotnet build -c Release --no-restore *.sln
 
       - uses: actions/upload-artifact@v4
