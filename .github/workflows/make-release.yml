@@ -46,7 +46,7 @@ jobs:
 
       - name: Update manifest version
         run: |
-            echo "$( jq '.version = "${{ env.GitVersion_FullSemVer }}"' ${{ github.workspace }}/manifest.json )" > ${{ github.workspace }}/manifest.json
+            echo "$( jq '.version = "${{ env.GitVersion_MajorMinorPatch }}"' ${{ github.workspace }}/manifest.json )" > ${{ github.workspace }}/manifest.json
 
       - name: Build
         run: |
@@ -56,30 +56,30 @@ jobs:
       - name: Package plugin.zip for release
         run: |
           cd "${{ github.workspace }}/bin/net8.0/"
-          zip -r "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.zip" ./*
+          zip -r "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.zip" ./*
           ls -lah "${{ github.workspace }}/bin/"
           
       - uses: actions/upload-artifact@v4
         with: 
-          name: "${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.nupkg"
-          path: "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.nupkg"
+          name: "${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.nupkg"
+          path: "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.nupkg"
           
       - name: Push GitHub NuGet Package
         run: |
           dotnet nuget add source --username Chorizite --password ${{ secrets.CI_NUGET_API_KEY }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/Chorizite/index.json"
-          dotnet nuget push "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.nupkg" --api-key ${{ secrets.CI_NUGET_API_KEY }} --source "github"
-          dotnet nuget push "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.nupkg" --api-key ${{ secrets.NUGET_DEPLOY_KEY }} --source https://api.nuget.org/v3/index.json
+          dotnet nuget push "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.nupkg" --api-key ${{ secrets.CI_NUGET_API_KEY }} --source "github"
+          dotnet nuget push "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.nupkg" --api-key ${{ secrets.NUGET_DEPLOY_KEY }} --source https://api.nuget.org/v3/index.json
 
       - name: Create release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          tag: release/${{ env.GitVersion_FullSemVer }}
+          tag: release/${{ env.GitVersion_MajorMinorPatch }}
         run: |
           gh release create "$tag" \
               --repo="$GITHUB_REPOSITORY" \
-              --title="Release v${{ env.GitVersion_FullSemVer }}" \
+              --title="Release v${{ env.GitVersion_MajorMinorPatch }}" \
               --generate-notes \
-              "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.zip#${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_FullSemVer }}.zip"
+              "${{ github.workspace }}/bin/${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.zip#${{ env.NUGET_PACKAGE_ID }}.${{ env.GitVersion_MajorMinorPatch }}.zip"
               
       - name: Bump version
         run: |
