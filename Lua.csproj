@@ -5,6 +5,10 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>12</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\$(TargetFramework)\</OutputPath>
+    <PackageOutputPath>bin\</PackageOutputPath>
+    <IntermediateOutputPath>obj\$(TargetFramework)\</IntermediateOutputPath>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>pdbonly</DebugType>
@@ -12,6 +16,9 @@
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <DefineConstants>$(DefineConstants);XLUA_GENERAL;THREAD_SAFE</DefineConstants>
     <ChoriziteSetPackageMeta>False</ChoriziteSetPackageMeta>
+    <ChoriziteSetVersion>False</ChoriziteSetVersion>
+    <ChoriziteSetPackageVersion>False</ChoriziteSetPackageVersion>
+    <ChoriziteSetAssemblyVersion>False</ChoriziteSetAssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -31,7 +38,6 @@
     <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
     <UpdateAssemblyInfo>false</UpdateAssemblyInfo>
     <UseProjectNamespaceForGitVersionInformation>true</UseProjectNamespaceForGitVersionInformation>
-    <PackageOutputPath>..\bin\</PackageOutputPath>
   </PropertyGroup>
 
   <Target Name="VSGitVersion" BeforeTargets="PreBuildEvent" Condition="$(MSBuildRuntimeType)=='Full'">
