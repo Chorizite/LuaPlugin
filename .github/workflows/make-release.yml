@@ -21,10 +21,6 @@ jobs:
         id: version_step
         uses: gittools/actions/gitversion/execute@v3.1.2
 
-      - name: Update manifest version
-        run: |
-            echo "$( jq '.version = "${{ env.GitVersion_FullSemVer }}"' ${{ github.workspace }}/manifest.json )" > ${{ github.workspace }}/manifest.json
-
       - name: Generate release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -47,6 +43,10 @@ jobs:
         run: |
           git tag -a "release/${{ env.GitVersion_MajorMinorPatch }}" -F release-notes.md
           git push origin "release/${{ env.GitVersion_MajorMinorPatch }}"
+
+      - name: Update manifest version
+        run: |
+            echo "$( jq '.version = "${{ env.GitVersion_FullSemVer }}"' ${{ github.workspace }}/manifest.json )" > ${{ github.workspace }}/manifest.json
 
       - name: Build
         run: |
