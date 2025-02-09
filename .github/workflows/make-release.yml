@@ -23,7 +23,7 @@ jobs:
 
       - name: Update manifest version
         run: |
-            run: echo "$( jq '.version = "${{ env.GitVersion_FullSemVer }}"' ${{ github.workspace }}/manifest.json )" > ${{ github.workspace }}/manifest.json
+            echo "$( jq '.version = "${{ env.GitVersion_FullSemVer }}"' ${{ github.workspace }}/manifest.json )" > ${{ github.workspace }}/manifest.json
 
       - name: Generate release notes
         env:
