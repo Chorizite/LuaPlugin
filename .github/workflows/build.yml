@@ -5,7 +5,7 @@ on:
       - master
 jobs:
   build:
-    uses: chorizite/github-actions/build-gitversion.yml@master
+    uses: chorizite/github-actions/.github/workflows/build-gitversion.yml@master
     permissions:
       packages: write
       contents: write
