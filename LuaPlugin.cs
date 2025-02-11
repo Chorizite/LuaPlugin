@@ -23,6 +23,7 @@ namespace Lua {
         internal readonly ILifetimeScope Scope;
         internal readonly IChoriziteBackend Backend;
         internal readonly Dictionary<string, object> LuaModules = [];
+        internal readonly Dictionary<string, Func<object>> LuaModuleCallbacks = [];
 
         public LuaContext Context { get; private set; }
 
@@ -59,9 +60,23 @@ namespace Lua {
         /// </summary>
         /// <param name="name"></param>
         /// <param name="module"></param>
-        public virtual bool RegisterLuaModule(string name, object module) {
-            if (!LuaModules.TryAdd(name, module)) {
+        public bool RegisterLuaModule(string name, object module) {
+            if (LuaModuleCallbacks.ContainsKey(name) || !LuaModules.TryAdd(name, module)) {
                 Log.LogWarning($"Failed to register lua module: {name}. Already exists with value: {LuaModules[name]}");
+                return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Register a lua module
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="callback"></param>
+        /// <returns></returns>
+        public bool RegisterLuaModule(string name, Func<object> callback) {
+            if (LuaModules.ContainsKey(name) || !LuaModuleCallbacks.TryAdd(name, callback)) {
+                Log.LogWarning($"Failed to register lua module: {name}. Already exists!");
                 return false;
             }
             return true;
@@ -71,7 +86,11 @@ namespace Lua {
         /// Unregister a lua module
         /// </summary>
         /// <param name="name"></param>
-        public virtual bool UnregisterLuaModule(string name) => LuaModules.Remove(name);
+        public bool UnregisterLuaModule(string name) {
+            if (LuaModules.Remove(name)) return true;
+            if (LuaModuleCallbacks.Remove(name)) return true;
+            return false;
+        }
         #endregion //Public API
 
         private void OnRender2D(object? sender, EventArgs e) {
