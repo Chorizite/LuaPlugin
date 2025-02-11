@@ -11,3 +11,4 @@ jobs:
       contents: write
     with:
       package_id: Chorizite.Plugins.Lua
+
