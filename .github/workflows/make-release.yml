@@ -7,3 +7,4 @@ jobs:
     permissions: write-all
     with:
       package_id: Chorizite.Plugins.Lua
+    secrets: inherit
