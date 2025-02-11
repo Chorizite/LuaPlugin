@@ -3,6 +3,7 @@ using Chorizite.Core;
 using Chorizite.Core.Backend.Client;
 using Chorizite.Core.Net;
 using Chorizite.Core.Plugins;
+using Chorizite.Core.Plugins.AssemblyLoader;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using XLua;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Lua {
     public partial class LuaContext : LuaEnv {
@@ -65,6 +65,12 @@ namespace Lua {
 
         private byte[] BuiltinModuleLoader(ref string filename) {
             // TODO: this is hacky
+            if (filename.ToLower() == "json") {
+                var libPath = Path.Combine(_luaScriptsPath, Path.Combine(_luaScriptsPath, $"{filename}.lua"));
+                if (File.Exists(libPath)) {
+                    return File.ReadAllBytes(libPath);
+                }
+            }
             if (filename.StartsWith("framework.") && !filename.EndsWith(".lua")) {
                 var lib = filename.Substring("framework.".Length);
                 var libPath = Path.Combine(_luaScriptsPath, Path.Combine("framework", $"{lib}.lua"));
@@ -203,12 +209,10 @@ namespace Lua {
             if (module is null) {
                 return null;
             }
-            else if (module is Type moduleType) {
-                return _plugin.Scope.Resolve(moduleType);
-            }
-            else if (module is string modulePath) {
-                if (modulePath.ToLower() != "debug") {
-                    var path = DoString($""""
+
+            string? currentScriptDirectory = null;
+            if (module.ToString()?.ToLower() != "debug") {
+                var path = DoString($""""
                         function traceback ()
                           local level = 1
                           while true do
@@ -227,29 +231,37 @@ namespace Lua {
                         end
                         return traceback()
                         """");
-                    if (path is not null && path.Length > 0) {
-                        var pathStr = RemoveLastNumberSuffix(path[0].ToString()?.Replace("|", ":"));
-                        if (!string.IsNullOrEmpty(pathStr) && File.Exists(pathStr)) {
-                            var scriptDir = Path.GetDirectoryName(pathStr);
 
-                            var parentDir = Path.GetDirectoryName(scriptDir); 
+                if (path is not null && path.Length > 0) {
+                    var pathStr = RemoveLastNumberSuffix(path[0].ToString()?.Replace("|", ":"));
+                    pathStr = Path.GetDirectoryName(pathStr);
+                    currentScriptDirectory = pathStr;
+                }
+            }
 
-                            if (File.Exists(Path.Combine(scriptDir, $"{modulePath}.lua")) ||
-                                (parentDir != null && File.Exists(Path.Combine(parentDir, $"{modulePath}.lua")))) {
+            if (module is Type moduleType) {
+                return _plugin.Scope.Resolve(moduleType);
+            }
+            else if (module is string modulePath) {
+                if (modulePath.ToLower() != "debug") {
+                    if (!string.IsNullOrEmpty(currentScriptDirectory) && Directory.Exists(currentScriptDirectory)) {
+                        var parentDir = Path.GetDirectoryName(currentScriptDirectory);
 
-                                var choriziteCorePath = Path.Combine(_luaScriptsPath).Replace("\\", "\\\\") + "\\\\?.lua";
-                                scriptDir = scriptDir.Replace("\\", "\\\\") + "\\\\?.lua";
+                        if (File.Exists(Path.Combine(currentScriptDirectory, $"{modulePath}.lua")) ||
+                            (parentDir != null && File.Exists(Path.Combine(parentDir, $"{modulePath}.lua")))) {
 
-                                if (parentDir != null) {
-                                    parentDir = parentDir.Replace("\\", "\\\\") + "\\\\?.lua";
-                                    DoString($"package.path = \"{choriziteCorePath};{scriptDir};{parentDir}\"");
-                                }
-                                else {
-                                    DoString($"package.path = \"{choriziteCorePath};{scriptDir}\"");
-                                }
+                            var choriziteCorePath = Path.Combine(_luaScriptsPath).Replace("\\", "\\\\") + "\\\\?.lua";
+                            currentScriptDirectory = currentScriptDirectory.Replace("\\", "\\\\") + "\\\\?.lua";
 
-                                return _originalRequire.Call($"{modulePath}").FirstOrDefault();
+                            if (parentDir != null) {
+                                parentDir = parentDir.Replace("\\", "\\\\") + "\\\\?.lua";
+                                DoString($"package.path = \"{choriziteCorePath};{currentScriptDirectory};{parentDir}\"");
                             }
+                            else {
+                                DoString($"package.path = \"{choriziteCorePath};{currentScriptDirectory}\"");
+                            }
+
+                            return _originalRequire.Call($"{modulePath}").FirstOrDefault();
                         }
                     }
                 }
@@ -264,6 +276,9 @@ namespace Lua {
                 if (_plugin.LuaModules.TryGetValue(modulePath, out var moduleObj)) {
                     return moduleObj;
                 }
+                if (_plugin.LuaModuleCallbacks.TryGetValue(modulePath, out var moduleObjCallback)) {
+                    return moduleObjCallback.Invoke();
+                }
 
                 return _originalRequire.Call(modulePath).FirstOrDefault();
             }
@@ -272,6 +287,7 @@ namespace Lua {
 
             return null;
         }
+
         private static string RemoveLastNumberSuffix(string? input) {
             if (string.IsNullOrEmpty(input))
                 return input ?? "";
