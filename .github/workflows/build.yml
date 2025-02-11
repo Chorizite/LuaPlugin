@@ -14,4 +14,3 @@ jobs:
       plugin_bin_dir: "${{ github.workspace }}/bin/net8.0"
     secrets:
       access_token: ${{ github.ACCESS_TOKEN }}
-
