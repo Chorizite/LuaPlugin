@@ -11,6 +11,4 @@ jobs:
       contents: write
     with:
       package_id: Chorizite.Plugins.Lua
-    secrets:
-      access_token: ${{ github.ACCESS_TOKEN }}
 
