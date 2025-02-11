@@ -10,7 +10,7 @@ jobs:
       packages: write
       contents: write
     with:
-      nuget_package_id: Chorizite.Plugins.Lua
+      package_id: Chorizite.Plugins.Lua
       plugin_bin_dir: "${{ github.workspace }}/bin/net8.0"
     secrets:
       access_token: ${{ github.ACCESS_TOKEN }}
