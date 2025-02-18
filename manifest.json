@@ -1,6 +1,7 @@
 {
   "name": "Lua",
   "author": "Chorizite",
+  "icon":  "icon.png",
   "entryfile": "Lua.dll",
   "version": "0.0.0-dev",
   "description": "Provides lua scripting support.",
