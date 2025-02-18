@@ -40,16 +40,12 @@ namespace Lua {
             RegisterLuaModule("Renderer", Scope.Resolve<IRenderInterface>());
             RegisterLuaModule("InputManager", Scope.Resolve<IInputManager>());
             RegisterLuaModule("PluginManager", Scope.Resolve<IPluginManager>());
-            RegisterLuaModule("DatReader", Scope.Resolve<IDatReaderInterface>());
-
-            if (Backend.Environment.HasFlag(ChoriziteEnvironment.Client)) {
-                RegisterLuaModule("ClientBackend", Scope.Resolve<IClientBackend>());
-                RegisterLuaModule("NetworkParser", Scope.Resolve<NetworkParser>());
-            }
-
-            if (Backend.Environment.HasFlag(ChoriziteEnvironment.Launcher)) {
-                RegisterLuaModule("LauncherBackend", Scope.Resolve<ILauncherBackend>());
-            }
+            
+            // optional interfaces
+            RegisterOptionalLuaModule<IDatReaderInterface>("DatReader");
+            RegisterOptionalLuaModule<NetworkParser>("NetworkParser");
+            RegisterOptionalLuaModule<IClientBackend>("ClientBackend");
+            RegisterOptionalLuaModule<ILauncherBackend>("LauncherBackend");
 
             Backend.Renderer.OnRender2D += OnRender2D;
         }
@@ -92,6 +88,12 @@ namespace Lua {
             return false;
         }
         #endregion //Public API
+
+        private void RegisterOptionalLuaModule<T>(string name) {
+            if (Scope.TryResolve(typeof(T), out var module)) {
+                RegisterLuaModule(name, module);
+            }
+        }
 
         private void OnRender2D(object? sender, EventArgs e) {
             try {
