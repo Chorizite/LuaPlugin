@@ -14,12 +14,15 @@ namespace Lua {
 
         public LuaThread Thread { get; set; }
         public LuaContext Context { get; set; }
+        public object[] Args { get; set; }
+
         public Task<object[]?> Task => _taskCompletionSource.Task;
         public string Name { get; }
 
-        public LuaCoroutine(LuaThread thread, LuaContext context, ILogger log) {
+        public LuaCoroutine(LuaThread thread, object[] args, LuaContext context, ILogger log) {
             Thread = thread;
             Context = context;
+            Args = args;
             _log = log;
             _taskCompletionSource = new TaskCompletionSource<object[]?>();
         }
