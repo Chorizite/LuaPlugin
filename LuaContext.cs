@@ -118,7 +118,7 @@ namespace Lua {
             var threads = _luaThreads.ToArray();
             foreach (var thread in threads) {
                 try {
-                    if (!thread.Update()) {
+                    if (!thread.Update(thread.Args)) {
                         _luaThreads.Remove(thread);
                     }
                 }
@@ -153,13 +153,13 @@ namespace Lua {
         }
 
         public Task ThreadToTask(LuaThread thread, params object[] args) {
-            var co = new LuaCoroutine(thread, this, _log);
+            var co = new LuaCoroutine(thread, args, this, _log);
             return co.Task;
         }
 
-        public Task AddManagedCoroutine(LuaThread thread) {
-            var co = new LuaCoroutine(thread, this, _log);
-            if (co.Update()) {
+        public Task AddManagedCoroutine(LuaThread thread, params object[] args) {
+            var co = new LuaCoroutine(thread, args, this, _log);
+            if (co.Update(args)) {
                 _luaThreads.Add(co);
             }
             return co.Task;
