@@ -24,10 +24,13 @@ namespace Lua {
         internal readonly IChoriziteBackend Backend;
         internal readonly Dictionary<string, object> LuaModules = [];
         internal readonly Dictionary<string, Func<object>> LuaModuleCallbacks = [];
+        internal static LuaPluginCore Instance;
+        private LuaPluginLoader _luaLoader;
 
         public LuaContext Context { get; private set; }
 
         protected LuaPluginCore(AssemblyPluginManifest manifest, IChoriziteBackend backend, ILifetimeScope scope, ILogger log) : base(manifest) {
+            Instance = this;
             Log = log;
             Scope = scope;
             Backend = backend;
@@ -46,6 +49,9 @@ namespace Lua {
             RegisterOptionalLuaModule<NetworkParser>("NetworkParser");
             RegisterOptionalLuaModule<IClientBackend>("ClientBackend");
             RegisterOptionalLuaModule<ILauncherBackend>("LauncherBackend");
+
+            _luaLoader = new LuaPluginLoader(this);
+            Scope.Resolve<IPluginManager>().RegisterPluginLoader(_luaLoader);
 
             Backend.Renderer.OnRender2D += OnRender2D;
         }
@@ -106,6 +112,7 @@ namespace Lua {
 
         protected override void Dispose() {
             Backend.Renderer.OnRender2D -= OnRender2D;
+            Scope.Resolve<IPluginManager>().UnregisterPluginLoader(_luaLoader);
             Context?.Dispose();
         }
     }

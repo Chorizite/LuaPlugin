@@ -268,8 +268,9 @@ namespace Lua {
                 if (modulePath.StartsWith("Plugins.") && !modulePath.EndsWith(".lua")) {
                     var lib = modulePath.Substring("Plugins.".Length);
                     var pluginManager = _plugin.Scope.Resolve<IPluginManager>();
-                    var plugin = pluginManager?.GetPlugin<IPluginCore>(lib);
-                    return plugin;
+                    var plugin = pluginManager?.GetPlugin(lib);
+                    
+                    return plugin?.Instance;
                 }
 
                 // custom modules, registered with <see cref="IChoriziteBackend.RegisterLuaModule(string, object)" />
