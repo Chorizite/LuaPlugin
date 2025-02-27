@@ -1134,7 +1134,7 @@ namespace XLua
             return methodBuilder;
         }
 
-        static HashSet<MemberInfo> BlackList = new HashSet<MemberInfo>();
+        internal static HashSet<MemberInfo> BlackList = new HashSet<MemberInfo>();
 
         static void addToBlackList(List<string> info)
         {

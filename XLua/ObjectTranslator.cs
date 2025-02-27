@@ -109,8 +109,8 @@ namespace XLua
         internal ObjectCheckers objectCheckers;
         internal ObjectCasters objectCasters;
 
-        internal readonly ObjectPool objects = new ObjectPool();
-        internal readonly Dictionary<object, int> reverseMap = new Dictionary<object, int>(new ReferenceEqualsComparer());
+        internal ObjectPool objects = new ObjectPool();
+        internal Dictionary<object, int> reverseMap = new Dictionary<object, int>(new ReferenceEqualsComparer());
 		internal LuaEnv luaEnv;
 		internal StaticLuaCallbacks metaFunctions;
 		internal List<Assembly> assemblies;

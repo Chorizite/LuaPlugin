@@ -188,7 +188,7 @@ namespace XLua
             }
         }
 
-        private static List<Action<LuaEnv, ObjectTranslator>> initers = null;
+        internal static List<Action<LuaEnv, ObjectTranslator>> initers = null;
 
         public static void AddIniter(Action<LuaEnv, ObjectTranslator> initer)
         {
@@ -399,10 +399,11 @@ namespace XLua
 
         internal virtual void PreDispose() {
             translator.methodWrapsCache._evtHandlerDelegates.Clear(); //clear all event handler deleg
-            GC();
-            Tick();
-            System.GC.Collect();
-            //System.GC.WaitForPendingFinalizers();
+            for (var i = 0; i < 20; i++) {
+                GC();
+                Tick();
+                System.GC.Collect();
+            }
         }
 
         public virtual void Dispose(bool dispose)
@@ -412,9 +413,9 @@ namespace XLua
             {
 #endif
                 if (disposed) return;
-            
-                PreDispose();
+
                 customLoaders.Clear();
+                PreDispose();
                 for (var i = 0; i < 10; i++) {
                     GC();
                     Tick();
@@ -424,7 +425,7 @@ namespace XLua
 
                 if (!translator.AllDelegateBridgeReleased())
                 {
-                    //throw new InvalidOperationException("try to dispose a LuaEnv with C# callback!");
+                    throw new InvalidOperationException("try to dispose a LuaEnv with C# callback!");
                 }
                 
                 ObjectTranslatorPool.Instance.Remove(L);

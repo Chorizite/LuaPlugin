@@ -20,7 +20,6 @@ using XLua;
 namespace Lua {
     public partial class LuaContext : LuaEnv {
         private static Regex _luaDocExceptionRe = new Regex("""\[string "([^:]+\.rml):(\d+)"\]:(\d+)""", RegexOptions.Singleline);
-        private static List<LuaContext> _contexts = new List<LuaContext>();
 
         private int _nextTimeoutId = 0;
         private int _nextIntervalId = 0;
@@ -48,7 +47,6 @@ namespace Lua {
         private List<LuaCoroutine> _luaThreads = new();
 
         internal LuaContext(LuaPluginCore plugin, ILogger log) : base() {
-            _contexts.Add(this);
             _plugin = plugin;
             _luaScriptsPath = Path.Combine(_plugin.AssemblyDirectory, "LuaScripts");
             _log = log;
@@ -106,14 +104,7 @@ namespace Lua {
             Global.Set("require", Require);
         }
 
-        internal static void UpdateAll() {
-            var envs = _contexts.ToArray();
-            foreach (var env in envs) {
-                env.Update();
-            }
-        }
-
-        protected void Update() {
+        internal void Update() {
             // coroutines (threads)
             var threads = _luaThreads.ToArray();
             foreach (var thread in threads) {
@@ -377,19 +368,29 @@ namespace Lua {
         public override void Dispose(bool disposing) {
             if (_isDisposed) return;
             _isDisposed = true;
-
             _luaThreads.Clear();
             _timeouts.Clear();
             _intervals.Clear();
-            _contexts.Remove(this);
             cancellationTokenSource.Cancel();
             cancellationTokenSource.Dispose();
+
+            PreDispose();
 
             //DoString("require('xlua.util').print_func_ref_by_csharp()");
             _originalRequire = null!;
 
+
             try {
                 base.Dispose(disposing);
+
+                translator = null;
+
+                CodeEmit.BlackList = null;
+                DelegateBridge.DelegateBridgeList = null;
+                InternalGlobals.objectTranslatorPool = null;
+                InternalGlobals.extensionMethodMap = null;
+                InternalGlobals.LazyReflectionWrap = null;
+                initers = null;
             }
             catch (Exception ex) {
                 _log?.LogError(ex.Message);

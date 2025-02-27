@@ -32,7 +32,7 @@ namespace Lua {
             }
 
             var source = File.ReadAllText(luaEntry);
-            _moduleRet = LuaPluginCore.Instance.Context.DoString(source, luaEntry);
+            _moduleRet = LuaPluginCore.Instance.Context.DoString($"""coroutine.create_managed(function() {source} end, "Document")""", $"{luaEntry}");
 
             IsLoaded = true;
             return base.Load();
