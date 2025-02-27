@@ -103,7 +103,7 @@ namespace Lua {
 
         private void OnRender2D(object? sender, EventArgs e) {
             try {
-                LuaContext.UpdateAll();
+                Context?.Update();
             }
             catch (Exception ex) {
                 Log?.LogError(ex, "Error in OnRender2D");
@@ -114,6 +114,8 @@ namespace Lua {
             Backend.Renderer.OnRender2D -= OnRender2D;
             Scope.Resolve<IPluginManager>().UnregisterPluginLoader(_luaLoader);
             Context?.Dispose();
+            Context = null;
+            Instance = null;
         }
     }
 }
