@@ -1,9 +1,10 @@
 {
-  "name": "Lua",
+  "id": "Lua",
+  "name": "Lua Scripting",
   "author": "Chorizite",
-  "icon":  "icon.png",
+  "icon": "icon.png",
   "entryfile": "Lua.dll",
   "version": "0.0.0-dev",
-  "description": "Provides lua scripting support.",
+  "description": "Provides lua scripting support in both the client and launcher.",
   "environments": [ "Client", "Launcher" ]
 }
