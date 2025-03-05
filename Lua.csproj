@@ -61,9 +61,9 @@
   </Target>
 
   <ItemGroup>
-    <PackageReference Include="Chorizite.Common" Version="1.0.0" ExcludeAssets="runtime" />
+    <PackageReference Include="Chorizite.Common" Version="1.0.2" ExcludeAssets="runtime" />
     <PackageReference Include="Autofac" Version="8.2.0" ExcludeAssets="runtime" />
-    <PackageReference Include="Chorizite.Core" Version="0.0.10" ExcludeAssets="runtime" />
+    <PackageReference Include="Chorizite.Core" Version="0.0.13" ExcludeAssets="runtime" />
     <PackageReference Include="Chorizite.Plugins.MSBuildTasks" Version="0.0.3" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" ExcludeAssets="runtime" />
     <PackageReference Include="GitVersion.MsBuild" Version="6.1.0">
@@ -96,4 +96,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
+  <ProjectExtensions><VisualStudio><UserProperties manifest_1json__JsonSchema="https://chorizite.github.io/plugin-index/schemas/plugin-manifest.json" /></VisualStudio></ProjectExtensions>
 </Project>

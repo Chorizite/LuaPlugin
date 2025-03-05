@@ -114,8 +114,8 @@ namespace Lua {
             Backend.Renderer.OnRender2D -= OnRender2D;
             Scope.Resolve<IPluginManager>().UnregisterPluginLoader(_luaLoader);
             Context?.Dispose();
-            Context = null;
-            Instance = null;
+            Context = null!;
+            Instance = null!;
         }
     }
 }
